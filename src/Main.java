@@ -9,16 +9,18 @@ import java.util.Set;
 
 public class Main {
 	
-	public static final String[] EX1PROMPT = {"Write the translation", "Γράψε την μετάφραση"};
-	public static final String[] REMAINING_LIVES = {"Remaining lives", "Εναπομείνασες ζωές‚"};
+	public static final String[] EX1PROMPT = {"Write the translation", "Γράψε την μετάφραση", "Schreib die Übersetzung"};
+	public static final String[] REMAINING_LIVES = {"Remaining lives", "Εναπομείνασες ζωές", "Verbleibende Leben"};
+	public static final String[] CORRECT_ANS = {"The correct answer was ", "Η σωστή απάντηση ήταν ", "Die richtige Antwort war "};
 	private static int LANG;
+	public static int lives = 3;
 	
 	public static void main(String[] args){
 		
 		HashMap<String, ArrayList<String>> dictionary = new HashMap<>();
 		File f = new File("Verb.csv");
 		Scanner sc = null;
-		int lives = 3;
+		
 		try {
 			sc = new Scanner(f);
 			createDictionary(dictionary, sc);
@@ -27,16 +29,11 @@ public class Main {
 			System.out.println("Choose instruction language: ");
 			System.out.println("\t0. English");
 			System.out.println("\t1. Ελληνικά");
+			System.out.println("\t2. Deutsch");
 			LANG = sc.nextInt();
 			System.out.println(EX1PROMPT[LANG]);
 			while (lives > 0){
-				boolean res = play(dictionary);
-				if (!res){
-					System.out.println("Falsch :-(");
-					System.out.println(REMAINING_LIVES[LANG]+" : "+(--lives));
-				} else {
-					System.out.println("Richtig!! :-)");
-				}
+				play(dictionary);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -49,17 +46,17 @@ public class Main {
 		
 	}
 
-	private static boolean play(HashMap<String, ArrayList<String>> dictionary) {
+	private static void play(HashMap<String, ArrayList<String>> dictionary) {
 
 		Scanner sc = new Scanner(System.in);
 		String question = getRandomWord(dictionary);
 		System.out.print(question+" : ");
 		String ans = sc.nextLine().trim();
 		
-		return isAnsCorrect(dictionary, question, ans.trim());
+		validateAns(dictionary, question, ans.trim());
 	}
 
-	private static boolean isAnsCorrect(
+	private static void validateAns(
 			HashMap<String, ArrayList<String>> dictionary, String question,
 			String ans) {
 		
@@ -68,12 +65,15 @@ public class Main {
 		if (answers != null){
 			for (String a : answers){
 				if (ans.equalsIgnoreCase(a)){
-					return true;
+					System.out.println("Richtig!! :-)");
+					return;
 				}
 			}
 		}
 		
-		return false;
+		System.out.println("Falsch :-(");
+		System.out.println(CORRECT_ANS[LANG] + "\"" + answers.get(0) + "\"");
+		System.out.println(REMAINING_LIVES[LANG]+" : "+(--lives));
 	}
 
 	private static String getRandomWord(
