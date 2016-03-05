@@ -1,7 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.Set;
 public class Main {
 	
 	public static final String[] EX1PROMPT = {"Write the translation", "Γράψε την μετάφραση"};
-	public static final String[] REMAINING_LIVES = {"Remaining lives", "Εναπομείνασες ζωές"};
+	public static final String[] REMAINING_LIVES = {"Remaining lives", "Εναπομείνασες ζωές‚"};
 	private static int LANG;
 	
 	public static void main(String[] args){
@@ -56,15 +54,6 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 		String question = getRandomWord(dictionary);
 		System.out.print(question+" : ");
-//		PrintStream out;
-//		try {
-//			out = new PrintStream(System.out, true, "UTF-8");
-//			out.println(question+" :");
-//		} catch (UnsupportedEncodingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	    
 		String ans = sc.nextLine().trim();
 		
 		return isAnsCorrect(dictionary, question, ans.trim());
