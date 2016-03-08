@@ -6,43 +6,84 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.sun.org.apache.bcel.internal.generic.MULTIANEWARRAY;
+
 public class Main {
 
-	public static final String[] EX1PROMPT = { "Write the translation",
+	private static final String[] VERB_PROMPT = { "Write the translation",
 			"Γράψε την μετάφραση", "Schreib die Übersetzung" };
-	public static final String[] REMAINING_LIVES = { "Remaining lives",
+	private static final String[] NOUN_PROMPT = { "Find the noun's gender.",
+			"Βρες το γένος του ουσιαστικού.", "Finde die Nomen Geschlecht." };
+	private static final String[] NOUN_INSTRUCTIONS = {
+			"Give:\n\tm for masculine\n\tf for feminine or\n\tn for neuter",
+			"Δώσε:\n\tα για αρσενικό\n\tθ για θυληκό ή\n\tο για ουδέτερο",
+			"Gebe:\n\tr für Maskulinum\n\te für Femininum aber\n\ts für Neutrum" };
+	private static final String[] REMAINING_LIVES = { "Remaining lives",
 			"Εναπομείνασες ζωές", "Verbleibende Leben" };
-	public static final String[] CORRECT_ANS = { "The correct answer was ",
+	private static final String[] CORRECT_ANS = { "The correct answer was ",
 			"Η σωστή απάντηση ήταν ", "Die richtige Antwort war " };
-	public static final String[] RIGHT = { "Right!", "Σωστό!", "Richtig!" };
-	public static final String[] WRONG = { "Wrong", "Λάθος", "Falsch" };
-	
+	private static final String[] RIGHT = { "Right!", "Σωστό!", "Richtig!" };
+	private static final String[] WRONG = { "Wrong", "Λάθος", "Falsch" };
+	private static final String[] CHOOSE_GAME = { "Please choose a game",
+			"Παρακαλώ διάλεξε ένα παιχνίδι", "Wählen Sie bitte ein Spiel" };
+	private static final String[] VERB_GAME = { "Verb translation",
+			"Μετάφραση ρημάτων", "Verben Übersetzung" };
+	private static final String[] NOUN_GAME = { "Noun gender",
+			"Το γένος των ουσιαστικών", "Nomen Geschlecht" };
+	private static final String[] MASCULINE = { "masculine", "αρσενικό",
+			"Maskulinum" };
+	private static final String[] FEMININE = { "feminine", "θυληκό",
+			"Femininum" };
+	private static final String[] NEUTER = { "neuter", "ουδέτερο", "Neutrum" };
+	private static HashMap<Character, String[]> MULTILINGUAL_GENDERS = new HashMap<>();
+
 	private static int LANG;
-	public static int lives = 3;
-	public static HashMap<String, ArrayList<String>> ENG_DICTIONARY = new HashMap<>();
-	public static HashMap<String, ArrayList<String>> GRE_DICTIONARY = new HashMap<>();
-	public static final int GREEK_WORDS_END = 9;
+	private static int lives = 3;
+	private static HashMap<String, ArrayList<String>> ENG_DICTIONARY = new HashMap<>();
+	private static HashMap<String, ArrayList<String>> GRE_DICTIONARY = new HashMap<>();
+	private static ArrayList<Nomen> nouns = new ArrayList<Nomen>();
+	private static final int GREEK_WORDS_END = 9;
 
 	public static void main(String[] args) {
 
-		// File f = new File("Verb.csv");
-		File f = new File("Verb.txt");
+		File verbs = new File("Verb.txt");
+		File nounFile = new File("Nomen.txt");
 		Scanner sc = null;
 
 		try {
-			sc = new Scanner(f);
+			sc = new Scanner(verbs);
 			createDictionary(sc);
 			sc.close();
+			sc = new Scanner(nounFile);
+			createNounCollection(sc);
+			sc.close();
+			initializeMultiLangGenderMap();
 			sc = new Scanner(System.in);
 			System.out.println("Choose instruction language: ");
 			System.out.println("\t1. English");
 			System.out.println("\t2. Ελληνικά");
 			System.out.println("\t3. Deutsch");
 			LANG = sc.nextInt() - 1;
-			System.out.println(EX1PROMPT[LANG]);
-			while (lives > 0) {
-				play();
+			System.out.println(CHOOSE_GAME[LANG]);
+			System.out.println("\t1. " + VERB_GAME[LANG]);
+			System.out.println("\t2. " + NOUN_GAME[LANG]);
+			int option = sc.nextInt();
+			switch (option) {
+			case 1:
+				System.out.println(VERB_PROMPT[LANG]);
+				while (lives > 0) {
+					playVerbGame();
+				}
+				break;
+			case 2:
+				System.out.println(NOUN_PROMPT[LANG]);
+				System.out.println(NOUN_INSTRUCTIONS[LANG]);
+				while (lives > 0) {
+					playNounGame();
+				}
+				break;
 			}
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
@@ -53,21 +94,83 @@ public class Main {
 
 	}
 
+	private static void initializeMultiLangGenderMap() {
+		MULTILINGUAL_GENDERS.put('r', MASCULINE);
+		MULTILINGUAL_GENDERS.put('e', FEMININE);
+		MULTILINGUAL_GENDERS.put('s', NEUTER);
+	}
+
+	private static void createNounCollection(Scanner sc) {
+
+		while (sc.hasNext()) {
+			String[] tokens = sc.nextLine().split(";");
+
+			if (tokens.length != 3) {
+				System.err.println("Holy fuck!!");
+			}
+			nouns.add(new Nomen(tokens[0].charAt(0), tokens[1], tokens[2]));
+		}
+	}
+
 	@SuppressWarnings("resource")
-	private static void play() {
+	private static void playVerbGame() {
 
 		Scanner sc = new Scanner(System.in);
-		String question = getRandomWord();
+		String question = getRandomVerb();
 		System.out.print(question + " : ");
 		String ans = sc.nextLine().trim();
 
 		validateAns(question, ans.trim());
 	}
 
+	@SuppressWarnings("resource")
+	private static void playNounGame() {
+
+		Scanner sc = new Scanner(System.in);
+		Nomen noun = getRandomNoun();
+		System.out.print(noun.getSingular() + " : ");
+		char ans = sc.nextLine().trim().charAt(0);
+
+		switch (LANG) {
+		case 0:
+		case 1:
+			ans = convertAnsToGerman(ans);
+			break;
+		}
+
+		if (noun.checkGender(ans)) {
+			System.out.println(RIGHT[LANG]);
+		} else {
+			System.out.println(WRONG[LANG]);
+			System.out.println(CORRECT_ANS[LANG] + "\""
+					+ MULTILINGUAL_GENDERS.get(noun.getGender())[LANG] + "\"");
+			System.out.println(REMAINING_LIVES[LANG] + " : " + (--lives));
+		}
+	}
+
+	private static char convertAnsToGerman(char ans) {
+
+		if (ans == 'm' || ans == 'α') {
+			return 'r';
+		} else if (ans == 'f' || ans == 'θ') {
+			return 'e';
+		} else if (ans == 'n' || ans == 'ο') {
+			return 's';
+		} else {
+			return ans;
+		}
+	}
+
+	private static Nomen getRandomNoun() {
+
+		int rand = (int) (nouns.size() * Math.random());
+		return nouns.get(rand);
+	}
+
 	private static void validateAns(String question, String ans) {
-		
+
 		int defaultLang;
-		if (LANG == 2){
+		if (LANG == 2) {
 			defaultLang = 0;
 		} else {
 			defaultLang = LANG;
@@ -93,12 +196,12 @@ public class Main {
 		}
 
 		System.out.println(WRONG[LANG]);
-		System.out.println(CORRECT_ANS[LANG] + "\"" + answers.get(defaultLang).get(0)
-				+ "\"");
+		System.out.println(CORRECT_ANS[LANG] + "\""
+				+ answers.get(defaultLang).get(0) + "\"");
 		System.out.println(REMAINING_LIVES[LANG] + " : " + (--lives));
 	}
 
-	private static String getRandomWord() {
+	private static String getRandomVerb() {
 
 		Set<String> keys = ENG_DICTIONARY.keySet();
 		int rand = (int) (keys.size() * Math.random());

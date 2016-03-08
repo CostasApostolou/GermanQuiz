@@ -1,5 +1,23 @@
+Open tasks
+==========
+Rework hashmaps for verb game into a seperate class (maybe Verben) (CHECK IF THIS IS VIABLE)
+Create GUI for selecting language
+Create GUI for selecting game
+Create GUI for playing verb game
+Create GUI for playing noun game
+Create game with noun plurals
+
+08/03
+	1. Add nouns.txt 
+	2. Add functionality for the noun game 
+		a. Add new class Nomen 
+		b. Modify main() to incorporate the new game 
+		c. Add new relevant multilingual messages 
+	3. Convert ethnic answer to German for check
+	4. Convert German gender to ethnic whole word for printing purposes	
+
 05/03
-	1. Change the numbering from 0-2 to 1-3 DONE
-	2. Create seperate english and greek dictionaries DONE
-	3. Modify validateAns() in order to check on both dictionaries DONE
-	4. When wrong, the correct ans should appear in the chosen language. When Deutsch is selected, print in English the correct translation DONE
+	1. Change the numbering from 0-2 to 1-3 
+	2. Create seperate english and greek dictionaries 
+	3. Modify validateAns() in order to check on both dictionaries 
+	4. When wrong, the correct ans should appear in the chosen language. When Deutsch is selected, print in English the correct translation 
