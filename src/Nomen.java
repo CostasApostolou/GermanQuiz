@@ -37,5 +37,18 @@ public class Nomen {
 	public boolean checkGender(char ans){
 		return this.gender == ans;
 	}
+	
+	public boolean checkGender(int ans){
+		switch (ans) {
+		case 0:
+			return (this.gender == 'r');
+		case 1:
+			return (this.gender == 'e');
+		case 2:
+			return (this.gender == 's');
+		default:
+			return false;
+		}
+	}
 
 }

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.sun.org.apache.bcel.internal.generic.MULTIANEWARRAY;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 
 public class Main {
 
@@ -14,10 +16,6 @@ public class Main {
 			"Γράψε την μετάφραση", "Schreib die Übersetzung" };
 	private static final String[] NOUN_PROMPT = { "Find the noun's gender.",
 			"Βρες το γένος του ουσιαστικού.", "Finde die Nomen Geschlecht." };
-	private static final String[] NOUN_INSTRUCTIONS = {
-			"Give:\n\tm for masculine\n\tf for feminine or\n\tn for neuter",
-			"Δώσε:\n\tα για αρσενικό\n\tθ για θυληκό ή\n\tο για ουδέτερο",
-			"Gebe:\n\tr für Maskulinum\n\te für Femininum aber\n\ts für Neutrum" };
 	private static final String[] REMAINING_LIVES = { "Remaining lives",
 			"Εναπομείνασες ζωές", "Verbleibende Leben" };
 	private static final String[] CORRECT_ANS = { "The correct answer was ",
@@ -32,7 +30,7 @@ public class Main {
 			"Το γένος των ουσιαστικών", "Nomen Geschlecht" };
 	private static final String[] MASCULINE = { "masculine", "αρσενικό",
 			"Maskulinum" };
-	private static final String[] FEMININE = { "feminine", "θυληκό",
+	private static final String[] FEMININE = { "feminine", "θηλυκό",
 			"Femininum" };
 	private static final String[] NEUTER = { "neuter", "ουδέτερο", "Neutrum" };
 	private static HashMap<Character, String[]> MULTILINGUAL_GENDERS = new HashMap<>();
@@ -43,6 +41,11 @@ public class Main {
 	private static HashMap<String, ArrayList<String>> GRE_DICTIONARY = new HashMap<>();
 	private static ArrayList<Nomen> nouns = new ArrayList<Nomen>();
 	private static final int GREEK_WORDS_END = 9;
+
+	private static Object[] landIcons = { new ImageIcon("engIcon.png"),
+			new ImageIcon("greekIcon.png"), new ImageIcon("deutschIcon.png") };
+	private static Object[] genderIcons = { new ImageIcon("male.png"),
+			new ImageIcon("female.png"), new ImageIcon("neutral.png") };
 
 	public static void main(String[] args) {
 
@@ -59,29 +62,33 @@ public class Main {
 			sc.close();
 			initializeMultiLangGenderMap();
 			sc = new Scanner(System.in);
-			System.out.println("Choose instruction language: ");
-			System.out.println("\t1. English");
-			System.out.println("\t2. Ελληνικά");
-			System.out.println("\t3. Deutsch");
-			LANG = sc.nextInt() - 1;
-			System.out.println(CHOOSE_GAME[LANG]);
-			System.out.println("\t1. " + VERB_GAME[LANG]);
-			System.out.println("\t2. " + NOUN_GAME[LANG]);
-			int option = sc.nextInt();
-			switch (option) {
-			case 1:
-				System.out.println(VERB_PROMPT[LANG]);
-				while (lives > 0) {
+
+			while (true) {
+				LANG = chooseLangBox();
+
+				if (LANG == -1) {
+					return;
+				}
+
+				int option = chooseGameBox();
+
+				switch (option) {
+				case -1:
+					return;
+				case 0:
+					System.out.println(VERB_PROMPT[LANG]);
+					// while (lives > 0) {
 					playVerbGame();
-				}
-				break;
-			case 2:
-				System.out.println(NOUN_PROMPT[LANG]);
-				System.out.println(NOUN_INSTRUCTIONS[LANG]);
-				while (lives > 0) {
+					// }
+					break;
+				case 1:
+					// System.out.println(NOUN_PROMPT[LANG]);
+					// System.out.println(NOUN_INSTRUCTIONS[LANG]);
+					// while (lives > 0) {
 					playNounGame();
+					// }
+					// break;
 				}
-				break;
 			}
 
 		} catch (FileNotFoundException e) {
@@ -91,6 +98,21 @@ public class Main {
 				sc.close();
 			}
 		}
+
+	}
+
+	private static int chooseGameBox() {
+		return JOptionPane.showOptionDialog(null, CHOOSE_GAME[LANG], null,
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				new Object[] { VERB_GAME[LANG], NOUN_GAME[LANG] }, null);
+	}
+
+	private static int chooseLangBox() {
+
+		return JOptionPane.showOptionDialog(null,
+				"Choose instruction language:", null,
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, landIcons, null);
 
 	}
 
@@ -128,16 +150,17 @@ public class Main {
 
 		Scanner sc = new Scanner(System.in);
 		Nomen noun = getRandomNoun();
-		System.out.print(noun.getSingular() + " : ");
-		char ans = sc.nextLine().trim().charAt(0);
 
-		switch (LANG) {
-		case 0:
-		case 1:
-			ans = convertAnsToGerman(ans);
-			break;
+		// System.out.print(noun.getSingular() + " : ");
+		// char ans = sc.nextLine().trim().charAt(0);
+		int ans = JOptionPane.showOptionDialog(null, NOUN_PROMPT[LANG] + "\n"
+				+ noun.getSingular(), null, JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, genderIcons, null);
+
+		if (ans == -1) {
+			System.exit(0);
 		}
-
+		
 		if (noun.checkGender(ans)) {
 			System.out.println(RIGHT[LANG]);
 		} else {
@@ -148,18 +171,6 @@ public class Main {
 		}
 	}
 
-	private static char convertAnsToGerman(char ans) {
-
-		if (ans == 'm' || ans == 'α') {
-			return 'r';
-		} else if (ans == 'f' || ans == 'θ') {
-			return 'e';
-		} else if (ans == 'n' || ans == 'ο') {
-			return 's';
-		} else {
-			return ans;
-		}
-	}
 
 	private static Nomen getRandomNoun() {
 
