@@ -1,11 +1,16 @@
 Open tasks
 ==========
 Rework hashmaps for verb game into a seperate class (maybe Verben) (CHECK IF THIS IS VIABLE)
-Create GUI for selecting language
-Create GUI for selecting game
 Create GUI for playing verb game
 Create GUI for playing noun game
 Create game with noun plurals
+Serialize nouns and save the result
+Serialize verbs and save the result
+Load serialized nouns and verbs
+
+13/03
+	1. Create GUI for selecting language
+	2. Create GUI for selecting game
 
 08/03
 	1. Add nouns.txt 

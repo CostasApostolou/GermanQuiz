@@ -1,14 +1,11 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-
 
 public class Main {
 
@@ -42,57 +39,55 @@ public class Main {
 	private static ArrayList<Nomen> nouns = new ArrayList<Nomen>();
 	private static final int GREEK_WORDS_END = 9;
 
-	private static Object[] landIcons = { new ImageIcon("engIcon.png"),
-			new ImageIcon("greekIcon.png"), new ImageIcon("deutschIcon.png") };
-	private static Object[] genderIcons = { new ImageIcon("male.png"),
-			new ImageIcon("female.png"), new ImageIcon("neutral.png") };
+	private static Object[] langIcons = {
+			new ImageIcon(Main.class.getResource("engIcon.png")),
+			new ImageIcon(Main.class.getResource("greekIcon.png")),
+			new ImageIcon(Main.class.getResource("deutschIcon.png")) };
+
+	private static Object[] genderIcons = {
+			new ImageIcon(Main.class.getResource("male.png")),
+			new ImageIcon(Main.class.getResource("female.png")),
+			new ImageIcon(Main.class.getResource("neutral.png")) };
 
 	public static void main(String[] args) {
 
-		File verbs = new File("Verb.txt");
-		File nounFile = new File("Nomen.txt");
+		InputStream verbStream = null, nounStream = null;
 		Scanner sc = null;
 
 		try {
-			sc = new Scanner(verbs);
+			verbStream = Main.class.getResourceAsStream("Verb.txt");
+			nounStream = Main.class.getResourceAsStream("Nomen.txt");
+			sc = new Scanner(verbStream);
 			createDictionary(sc);
 			sc.close();
-			sc = new Scanner(nounFile);
+			sc = new Scanner(nounStream);
 			createNounCollection(sc);
 			sc.close();
 			initializeMultiLangGenderMap();
-			sc = new Scanner(System.in);
+
+			LANG = chooseLangBox();
+			if (LANG == -1) {
+				return;
+			}
 
 			while (true) {
-				LANG = chooseLangBox();
-
-				if (LANG == -1) {
-					return;
-				}
-
 				int option = chooseGameBox();
 
 				switch (option) {
 				case -1:
 					return;
 				case 0:
-					System.out.println(VERB_PROMPT[LANG]);
-					// while (lives > 0) {
 					playVerbGame();
-					// }
 					break;
 				case 1:
-					// System.out.println(NOUN_PROMPT[LANG]);
-					// System.out.println(NOUN_INSTRUCTIONS[LANG]);
-					// while (lives > 0) {
 					playNounGame();
-					// }
-					// break;
 				}
 			}
 
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(null,
+					"An error occured while trying to initialize the games");
 		} finally {
 			if (sc != null) {
 				sc.close();
@@ -112,7 +107,7 @@ public class Main {
 		return JOptionPane.showOptionDialog(null,
 				"Choose instruction language:", null,
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-				null, landIcons, null);
+				null, langIcons, null);
 
 	}
 
@@ -122,37 +117,31 @@ public class Main {
 		MULTILINGUAL_GENDERS.put('s', NEUTER);
 	}
 
-	private static void createNounCollection(Scanner sc) {
+	private static void createNounCollection(Scanner sc) throws Exception {
 
 		while (sc.hasNext()) {
 			String[] tokens = sc.nextLine().split(";");
 
 			if (tokens.length != 3) {
-				System.err.println("Holy fuck!!");
+				throw new Exception("Error in createNounCollection");
 			}
 			nouns.add(new Nomen(tokens[0].charAt(0), tokens[1], tokens[2]));
 		}
 	}
 
-	@SuppressWarnings("resource")
 	private static void playVerbGame() {
 
-		Scanner sc = new Scanner(System.in);
 		String question = getRandomVerb();
-		System.out.print(question + " : ");
-		String ans = sc.nextLine().trim();
+		JOptionPane
+				.showMessageDialog(null, VERB_PROMPT[LANG] + "\n" + question);
 
-		validateAns(question, ans.trim());
+		// validateAns(question, ans.trim());
 	}
 
-	@SuppressWarnings("resource")
 	private static void playNounGame() {
 
-		Scanner sc = new Scanner(System.in);
 		Nomen noun = getRandomNoun();
 
-		// System.out.print(noun.getSingular() + " : ");
-		// char ans = sc.nextLine().trim().charAt(0);
 		int ans = JOptionPane.showOptionDialog(null, NOUN_PROMPT[LANG] + "\n"
 				+ noun.getSingular(), null, JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, genderIcons, null);
@@ -160,7 +149,7 @@ public class Main {
 		if (ans == -1) {
 			System.exit(0);
 		}
-		
+
 		if (noun.checkGender(ans)) {
 			System.out.println(RIGHT[LANG]);
 		} else {
@@ -171,46 +160,51 @@ public class Main {
 		}
 	}
 
-
 	private static Nomen getRandomNoun() {
 
-		int rand = (int) (nouns.size() * Math.random());
-		return nouns.get(rand);
+		int rand = 0;
+		Nomen ret = null;
+		do {
+			rand = (int) (nouns.size() * Math.random());
+			ret = nouns.get(rand);
+		} while (ret.getSingular() == null);
+
+		return ret;
 	}
 
-	private static void validateAns(String question, String ans) {
-
-		int defaultLang;
-		if (LANG == 2) {
-			defaultLang = 0;
-		} else {
-			defaultLang = LANG;
-		}
-
-		ArrayList<String> greekAnswers = GRE_DICTIONARY.get(question);
-		ArrayList<String> engAnswers = ENG_DICTIONARY.get(question);
-		ArrayList<ArrayList<String>> answers = new ArrayList<ArrayList<String>>(
-				greekAnswers.size() + engAnswers.size());
-
-		answers.add(ENG_DICTIONARY.get(question));
-		answers.add(GRE_DICTIONARY.get(question));
-
-		if (answers != null) {
-			for (List<String> listAnswers : answers) {
-				for (String a : listAnswers) {
-					if (ans.equalsIgnoreCase(a)) {
-						System.out.println(RIGHT[LANG]);
-						return;
-					}
-				}
-			}
-		}
-
-		System.out.println(WRONG[LANG]);
-		System.out.println(CORRECT_ANS[LANG] + "\""
-				+ answers.get(defaultLang).get(0) + "\"");
-		System.out.println(REMAINING_LIVES[LANG] + " : " + (--lives));
-	}
+	// private static void validateAns(String question, String ans) {
+	//
+	// int defaultLang;
+	// if (LANG == 2) {
+	// defaultLang = 0;
+	// } else {
+	// defaultLang = LANG;
+	// }
+	//
+	// ArrayList<String> greekAnswers = GRE_DICTIONARY.get(question);
+	// ArrayList<String> engAnswers = ENG_DICTIONARY.get(question);
+	// ArrayList<ArrayList<String>> answers = new ArrayList<ArrayList<String>>(
+	// greekAnswers.size() + engAnswers.size());
+	//
+	// answers.add(ENG_DICTIONARY.get(question));
+	// answers.add(GRE_DICTIONARY.get(question));
+	//
+	// if (answers != null) {
+	// for (List<String> listAnswers : answers) {
+	// for (String a : listAnswers) {
+	// if (ans.equalsIgnoreCase(a)) {
+	// System.out.println(RIGHT[LANG]);
+	// return;
+	// }
+	// }
+	// }
+	// }
+	//
+	// System.out.println(WRONG[LANG]);
+	// System.out.println(CORRECT_ANS[LANG] + "\""
+	// + answers.get(defaultLang).get(0) + "\"");
+	// System.out.println(REMAINING_LIVES[LANG] + " : " + (--lives));
+	// }
 
 	private static String getRandomVerb() {
 
