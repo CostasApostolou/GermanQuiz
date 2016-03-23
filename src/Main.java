@@ -1,3 +1,5 @@
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,53 +50,56 @@ public class Main {
 			new ImageIcon(Main.class.getResource("male.png")),
 			new ImageIcon(Main.class.getResource("female.png")),
 			new ImageIcon(Main.class.getResource("neutral.png")) };
+	
+	private static Object lock = new Object();
 
 	public static void main(String[] args) {
 		
-		GUI.render();
+//		GeneratedGUI.render();
 
-//		InputStream verbStream = null, nounStream = null;
-//		Scanner sc = null;
-//
-//		try {
-//			verbStream = Main.class.getResourceAsStream("Verb.txt");
-//			nounStream = Main.class.getResourceAsStream("Nomen.txt");
-//			sc = new Scanner(verbStream);
-//			createDictionary(sc);
-//			sc.close();
-//			sc = new Scanner(nounStream);
-//			createNounCollection(sc);
-//			sc.close();
-//			initializeMultiLangGenderMap();
-//
-//			LANG = chooseLangBox();
-//			if (LANG == -1) {
-//				return;
-//			}
-//
-//			while (true) {
-//				int option = chooseGameBox();
-//
-//				switch (option) {
-//				case -1:
-//					return;
-//				case 0:
-//					playVerbGame();
-//					break;
-//				case 1:
-//					playNounGame();
-//				}
-//			}
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			JOptionPane.showMessageDialog(null,
-//					"An error occured while trying to initialize the games");
-//		} finally {
-//			if (sc != null) {
-//				sc.close();
-//			}
-//		}
+		InputStream verbStream = null, nounStream = null;
+		Scanner sc = null;
+
+		try {
+			verbStream = Main.class.getResourceAsStream("Verb.txt");
+			nounStream = Main.class.getResourceAsStream("Nomen.txt");
+			sc = new Scanner(verbStream);
+			createDictionary(sc);
+			sc.close();
+			sc = new Scanner(nounStream);
+			createNounCollection(sc);
+			sc.close();
+			initializeMultiLangGenderMap();
+
+			LANG = chooseLangBox();
+			if (LANG == -1) {
+				return;
+			}
+
+			while (true) {
+				int option = chooseGameBox();
+
+				switch (option) {
+				case -1:
+					return;
+				case 0:
+					//playVerbGame();
+					GeneratedGUI.render();
+					break;
+				case 1:
+					playNounGame();
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null,
+					"An error occured while trying to initialize the games");
+		} finally {
+			if (sc != null) {
+				sc.close();
+			}
+		}
 
 	}
 
