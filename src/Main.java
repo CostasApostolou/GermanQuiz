@@ -50,49 +50,51 @@ public class Main {
 			new ImageIcon(Main.class.getResource("neutral.png")) };
 
 	public static void main(String[] args) {
+		
+		GUI.render();
 
-		InputStream verbStream = null, nounStream = null;
-		Scanner sc = null;
-
-		try {
-			verbStream = Main.class.getResourceAsStream("Verb.txt");
-			nounStream = Main.class.getResourceAsStream("Nomen.txt");
-			sc = new Scanner(verbStream);
-			createDictionary(sc);
-			sc.close();
-			sc = new Scanner(nounStream);
-			createNounCollection(sc);
-			sc.close();
-			initializeMultiLangGenderMap();
-
-			LANG = chooseLangBox();
-			if (LANG == -1) {
-				return;
-			}
-
-			while (true) {
-				int option = chooseGameBox();
-
-				switch (option) {
-				case -1:
-					return;
-				case 0:
-					playVerbGame();
-					break;
-				case 1:
-					playNounGame();
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"An error occured while trying to initialize the games");
-		} finally {
-			if (sc != null) {
-				sc.close();
-			}
-		}
+//		InputStream verbStream = null, nounStream = null;
+//		Scanner sc = null;
+//
+//		try {
+//			verbStream = Main.class.getResourceAsStream("Verb.txt");
+//			nounStream = Main.class.getResourceAsStream("Nomen.txt");
+//			sc = new Scanner(verbStream);
+//			createDictionary(sc);
+//			sc.close();
+//			sc = new Scanner(nounStream);
+//			createNounCollection(sc);
+//			sc.close();
+//			initializeMultiLangGenderMap();
+//
+//			LANG = chooseLangBox();
+//			if (LANG == -1) {
+//				return;
+//			}
+//
+//			while (true) {
+//				int option = chooseGameBox();
+//
+//				switch (option) {
+//				case -1:
+//					return;
+//				case 0:
+//					playVerbGame();
+//					break;
+//				case 1:
+//					playNounGame();
+//				}
+//			}
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			JOptionPane.showMessageDialog(null,
+//					"An error occured while trying to initialize the games");
+//		} finally {
+//			if (sc != null) {
+//				sc.close();
+//			}
+//		}
 
 	}
 

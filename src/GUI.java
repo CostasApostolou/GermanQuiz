@@ -21,30 +21,46 @@ public class GUI {
 
 	public static void addComponentsToPane(Container pane) {
 
-		JPanel numbers = new JPanel();
-		numbers.setLayout(new GridLayout(1, NUM_OF_BUTTONS, 4, 0));
-		pane.setLayout(new GridLayout(2, 1));
-
-		addButtons(numbers);
-
+		pane.setLayout(new GridLayout(4, 1));
 		
-
+		// numbers pane
+		JPanel numbers = new JPanel(new GridLayout(1, NUM_OF_BUTTONS, 4, 2));
+		addButtons(numbers);
 		pane.add(numbers);
+		
+		// space
+		pane.add(new JPanel(new GridLayout(1, NUM_OF_BUTTONS)));
 
+		// game pane
 		JPanel game = new JPanel();
 		game.setLayout(new GridLayout(2, 2));
+		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 1;
-		c.gridy = 1;
-		pane.add(new JLabel("Write the tranlation"), c);
-
+		c.gridy = 0;
+		game.add(new JLabel("Write the tranlation"), c);
+		
 		c.gridx = 1;
-		c.gridy = 2;
-		pane.add(new JLabel("<word>"), c);
+		c.gridy = 1;
+		game.add(new JLabel(""), c);
 
 		c.gridx = 2;
-		c.gridy = 2;
-		pane.add(new JTextPane(), c);
+		c.gridy = 0;
+		game.add(new JLabel("<word>"), c);
+
+		c.gridx = 2;
+		c.gridy = 1;
+		game.add(new JTextPane(), c);
+		
+		pane.add(game);
+		
+		// done
+		JPanel done = new JPanel(new GridLayout(1, 2));
+		done.add(new JLabel(""));
+		done.add(new JButton("Done"));
+		pane.add(done);
+		
+
 
 	}
 
