@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 
 import java.awt.Font;
+import java.util.Random;
 
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
@@ -25,15 +26,17 @@ public class GeneratedGUI extends JFrame {
 	private JPanel contentPane;
 	private JButton[] buttons = new JButton[10];
 	private JButton check;
-	private JLabel word, yourAns = new JLabel();
+	private JLabel word, yourAns = new JLabel(), score, ansValidity,
+			correctAnsReveal;
 	private JTextField ans;
 	private String[] words = { "word1", "word2", "word3", "word4", "word5",
 			"word6", "word7", "word8", "word9", "word10" };
-	private int index = 1, LANG = 0, gameChosen = -1;
+	private int index = 1, LANG = 0, gameChosen = -1, overallCounter,
+			correctAnsCounter, rand;
 	private ImageIcon[] langIcons = {
 			new ImageIcon(GeneratedGUI.class.getResource("engIcon.png")),
-			new ImageIcon(Main.class.getResource("greekIcon.png")),
-			new ImageIcon(Main.class.getResource("deutschIcon.png")) };
+			new ImageIcon(GeneratedGUI.class.getResource("greekIcon.png")),
+			new ImageIcon(GeneratedGUI.class.getResource("deutschIcon.png")) };
 
 	private String[][] games = {
 			{ "Verb Translation (free mode)", "Noun Gender (free mode)",
@@ -56,6 +59,10 @@ public class GeneratedGUI extends JFrame {
 	private static final String[] CHOOSE_GAME_PROMPT = {
 			"Please choose a game", "Παρακαλώ διαλέξτε ένα παιχνίδι",
 			"Wählen Sie bitte ein Spiel" };
+	private static final String[] CORRECT_ANS = { "The correct answer was ",
+			"Η σωστή απάντηση ήταν ", "Die richtige Antwort war " };
+	private static final String[] RIGHT = { "Right!", "Σωστό!", "Richtig!" };
+	private static final String[] WRONG = { "Wrong", "Λάθος", "Falsch" };
 
 	// public static void main(String[] args) {
 	// EventQueue.invokeLater(new Runnable() {
@@ -83,9 +90,6 @@ public class GeneratedGUI extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public GeneratedGUI() {
 
 		setResizable(false);
@@ -167,6 +171,7 @@ public class GeneratedGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				switch (gameChosen) {
 				case 0:
+					playTranslationFree();
 					break;
 				case 1:
 					break;
@@ -203,23 +208,111 @@ public class GeneratedGUI extends JFrame {
 			group.add(radioButton);
 			contentPane.add(radioButton);
 		}
+	}
 
-		// for (int i = 2; i < 4; i++) {
-		// JRadioButton radioButton = new JRadioButton(games[i]);
-		// radioButton.setName(String.valueOf(i));
-		// int multi = i % 2 == 0 ? 5 : 8;
-		// radioButton.setBounds(2 * TEXT_SPACE[lang], multi * Y_GAP, 2 *
-		// TEXT_SPACE[lang]
-		// - X_GAP, 3 * Y_GAP);
-		// radioButton.addActionListener(new ActionListener() {
-		// public void actionPerformed(ActionEvent arg0) {
-		// gameChosen = Integer.parseInt(((JRadioButton) arg0
-		// .getSource()).getName());
-		// }
-		// });
-		// group.add(radioButton);
-		// contentPane.add(radioButton);
-		// }
+	private void playTranslationFree() {
+		setBounds(getLocation().x, getLocation().y, 10 * X_NUM_BUTTON_SIZE + 11
+				* X_GAP + X_BEZEL, 300);
+
+		contentPane.removeAll();
+		// reset counters
+		overallCounter = 0;
+		correctAnsCounter = 0;
+
+		JLabel prompt = new JLabel("Write the translation");
+		prompt.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		prompt.setBounds(X_GAP, Y_GAP, 2 * TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(prompt);
+
+		score = new JLabel(formScoreString());
+		score.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		score.setBounds(getWidth() - TEXT_SPACE[LANG] - X_GAP, Y_GAP,
+				TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(score);
+
+		// random generator
+		rand = new Random().nextInt(words.length);
+		word = new JLabel(words[rand]);
+		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		word.setBounds(X_GAP, 5 * Y_GAP, TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(word);
+
+		ans = new JTextField();
+		ans.setBounds(2 * X_GAP + word.getWidth(), 5 * Y_GAP,
+				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(ans);
+
+		final JButton next = new JButton(new ImageIcon(
+				GeneratedGUI.class.getResource("next.png")));
+		next.setBounds(getWidth() - SIMPLE_BUTTON_HEIGHT - X_GAP, 21 * Y_GAP,
+				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				rand = new Random().nextInt(words.length);
+				removeOldAnsAndRepaint(rand);
+				check.setEnabled(true);
+				getRootPane().setDefaultButton(check);
+			}
+		});
+		contentPane.add(next);
+
+		check = new JButton("Check");
+		check.setBounds(next.getLocation().x - X_GAP - SIMPLE_BUTTON_WIDTH,
+				21 * Y_GAP, SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
+		contentPane.add(check);
+
+		check.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				String strAns = ans.getText();
+
+				if (!strAns.equals("")) {
+
+					ans.setText("");
+					revealAns(word.getLocation().x, word.getLocation().y + 4
+							* Y_GAP, strAns, words[rand],
+							validateAns(rand + 1, strAns));
+					check.setEnabled(false);
+					getRootPane().setDefaultButton(next);
+				}
+
+			}
+		});
+
+		JButton back = new JButton("Back");
+		back.setBounds(check.getLocation().x - X_GAP - SIMPLE_BUTTON_WIDTH,
+				21 * Y_GAP, SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
+		back.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				createGameChoose();
+			}
+		});
+		contentPane.add(back);
+
+		addHomeButton(back.getLocation().x - X_GAP - SIMPLE_BUTTON_HEIGHT,
+				21 * Y_GAP, SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
+
+		getRootPane().setDefaultButton(check);
+	}
+
+	private boolean validateAnsAndDisableButton(int index, String strAns) {
+		boolean isAnsCorrect = validateAns(index, strAns);
+		if (isAnsCorrect) {
+			buttons[index - 1].setBackground(Color.green);
+		} else {
+			buttons[index - 1].setBackground(Color.RED);
+		}
+		buttons[index - 1].setEnabled(false);
+
+		return isAnsCorrect;
+	}
+
+	private boolean validateAns(int index, String strAns) {
+		return strAns.equals("word" + String.valueOf(index));
+	}
+
+	private String formScoreString() {
+		return correctAnsCounter + " / " + overallCounter;
 	}
 
 	private void playTranslationTest() {
@@ -252,7 +345,8 @@ public class GeneratedGUI extends JFrame {
 				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
 
 		JButton back = new JButton("Back");
-		back.setBounds(9 * X_GAP + 6 * X_NUM_BUTTON_SIZE + SIMPLE_BUTTON_HEIGHT, 210,
+		back.setBounds(
+				9 * X_GAP + 6 * X_NUM_BUTTON_SIZE + SIMPLE_BUTTON_HEIGHT, 210,
 				SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
 		back.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -262,8 +356,6 @@ public class GeneratedGUI extends JFrame {
 		contentPane.add(back);
 
 		check = new JButton("Check");
-		// check.setBounds(9 * X_GAP + 8 * X_NUM_BUTTON_SIZE, 210,
-		// SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
 		check.setBounds(X_GAP + back.getLocation().x + back.getWidth(), 210,
 				SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
 		contentPane.add(check);
@@ -274,20 +366,14 @@ public class GeneratedGUI extends JFrame {
 				String strAns = ans.getText();
 
 				if (!strAns.equals("")) {
-					validateAnsAndDisableButton(index, strAns);
+
 					ans.setText("");
-					revealAns(strAns);
+					revealAns(word.getLocation().x, word.getLocation().y + 4
+							* Y_GAP, strAns, words[index - 1],
+							validateAnsAndDisableButton(index, strAns));
+					check.setEnabled(false);
 				}
 
-			}
-
-			private void validateAnsAndDisableButton(int index, String strAns) {
-				if (strAns.equals("word" + String.valueOf(index))) {
-					buttons[index - 1].setBackground(Color.green);
-				} else {
-					buttons[index - 1].setBackground(Color.RED);
-				}
-				buttons[index - 1].setEnabled(false);
 			}
 		});
 		getRootPane().setDefaultButton(check);
@@ -314,7 +400,9 @@ public class GeneratedGUI extends JFrame {
 					Y_GAP, X_NUM_BUTTON_SIZE, Y_NUM_BUTTON_SIZE);
 			buttons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					onQuestionSelected((JButton) arg0.getSource());
+					index = Integer.parseInt(((JButton) arg0.getSource())
+							.getText());
+					removeOldAnsAndRepaint(index - 1);
 				}
 			});
 			contentPane.add(buttons[i]);
@@ -322,21 +410,59 @@ public class GeneratedGUI extends JFrame {
 
 	}
 
-	private void revealAns(String ans) {
+	private void revealAns(int x, int y, String givenAns, String correctAns,
+			boolean isAnsCorrect) {
 
-		yourAns.setText("Your answer : " + ans);
+		yourAns.setText("Your answer : " + givenAns);
 		yourAns.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		yourAns.setBounds(X_GAP, Y_NUM_BUTTON_SIZE + 10 * Y_GAP,
-				3 * TEXT_SPACE[LANG], 3 * Y_GAP);
+		yourAns.setBounds(x, y, 3 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(yourAns);
+
+		ansValidity = new JLabel();
+		ansValidity.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		ansValidity
+				.setBounds(x, y + 4 * Y_GAP, 3 * TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(ansValidity);
+
+		if (isAnsCorrect) {
+			ansValidity.setText(RIGHT[LANG]);
+			correctAnsCounter++;
+		} else {
+			ansValidity.setText(WRONG[LANG]);
+			correctAnsReveal = new JLabel(CORRECT_ANS[LANG] + correctAns);
+			correctAnsReveal.setFont(new Font("Tahoma", Font.PLAIN, 16));
+			correctAnsReveal.setBounds(x, y + 8 * Y_GAP, 3 * TEXT_SPACE[LANG],
+					3 * Y_GAP);
+			contentPane.add(correctAnsReveal);
+		}
+
+		overallCounter++;
+		if (score != null) {
+			score.setText(formScoreString());
+		}
+
 		contentPane.repaint();
 	}
 
-	private void onQuestionSelected(JButton button) {
+	private void removeOldAnsAndRepaint(int index) {
 
-		index = Integer.parseInt(button.getText());
-		word.setText(words[index - 1]);
+		if (ans != null) {
+			ans.grabFocus();
+			ans.setText("");
+		}
+
+		if (ansValidity != null) {
+			contentPane.remove(ansValidity);
+		}
+
+		if (correctAnsReveal != null) {
+			contentPane.remove(correctAnsReveal);
+		}
+		word.setText(words[index]);
 		contentPane.remove(yourAns);
+		if (check != null) {
+			check.setEnabled(true);
+		}
 		contentPane.repaint();
 	}
 }
