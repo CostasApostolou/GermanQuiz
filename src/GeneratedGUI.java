@@ -1,27 +1,26 @@
-import java.awt.Color;
-import java.awt.EventQueue;
-
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JLabel;
-
-import java.awt.Font;
-import java.util.Random;
-
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.EventQueue;
+
+import java.util.Random;
+
 public class GeneratedGUI extends JFrame {
+
+	private static final long serialVersionUID = -6523370605519160263L;
 
 	private JPanel contentPane;
 	private JButton[] numButtons = new JButton[10],
@@ -42,9 +41,10 @@ public class GeneratedGUI extends JFrame {
 			new ImageIcon(Main.class.getResource("male.png")),
 			new ImageIcon(Main.class.getResource("female.png")),
 			new ImageIcon(Main.class.getResource("neutral.png")) };
-	private ImageIcon checkIcon = new ImageIcon(Main.class.getResource("checkmark.png"));
-	private ImageIcon xIcon =new ImageIcon(Main.class.getResource("xmark.png"));
-
+	private ImageIcon checkIcon = new ImageIcon(
+			Main.class.getResource("checkmark.png"));
+	private ImageIcon xIcon = new ImageIcon(Main.class.getResource("xmark.png"));
+	private Icon[] defaultDisabledGenderIcons = new Icon[3];
 
 	private String[][] games = {
 			{ "Verb Translation (free mode)", "Noun Gender (free mode)",
@@ -77,6 +77,11 @@ public class GeneratedGUI extends JFrame {
 	private static final String[] RIGHT = { "Right!", "Σωστό!", "Richtig!" };
 	private static final String[] WRONG = { "Wrong", "Λάθος", "Falsch" };
 
+	private Verb verb;
+	private Verb[] verbs = new Verb[10];
+	private Noun noun;
+	private Noun[] nouns = new Noun[10];
+
 	// public static void main(String[] args) {
 	// EventQueue.invokeLater(new Runnable() {
 	// public void run() {
@@ -104,7 +109,6 @@ public class GeneratedGUI extends JFrame {
 	}
 
 	public GeneratedGUI() {
-
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocation(WINDOW_STARTING_X, WINDOW_STARTING_Y);
@@ -245,11 +249,10 @@ public class GeneratedGUI extends JFrame {
 				TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(score);
 
-		// random generator
-		rand = new Random().nextInt(words.length);
-		word = new JLabel(words[rand]);
+		verb = Helper.getRandomVerb();
+		word = new JLabel(verb.getVerb());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		word.setBounds(X_GAP, 5 * Y_GAP, TEXT_SPACE[LANG], 3 * Y_GAP);
+		word.setBounds(X_GAP, 5 * Y_GAP, 2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(word);
 
 		ans = new JTextField();
@@ -263,8 +266,8 @@ public class GeneratedGUI extends JFrame {
 				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
 		next.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				rand = new Random().nextInt(words.length);
-				removeOldAnsAndRepaint(rand);
+				verb = Helper.getRandomVerb();
+				removeOldAnsAndRepaint(verb.getVerb());
 				check.setEnabled(true);
 				getRootPane().setDefaultButton(check);
 			}
@@ -282,11 +285,10 @@ public class GeneratedGUI extends JFrame {
 				String strAns = ans.getText();
 
 				if (!strAns.equals("")) {
-
 					ans.setText("");
 					revealAns(word.getLocation().x, word.getLocation().y + 4
-							* Y_GAP, strAns, words[rand],
-							validateAns(rand, strAns));
+							* Y_GAP, strAns, verb.getCorrectAns(LANG),
+							verb.checkTranslation(strAns));
 					check.setEnabled(false);
 					getRootPane().setDefaultButton(next);
 				}
@@ -311,7 +313,7 @@ public class GeneratedGUI extends JFrame {
 	}
 
 	private boolean validateAnsAndDisableButton(int index, String strAns) {
-		boolean isAnsCorrect = validateAns(index, strAns);
+		boolean isAnsCorrect = verbs[this.index].checkTranslation(strAns);
 		if (isAnsCorrect) {
 			numButtons[index].setBackground(Color.green);
 		} else {
@@ -320,10 +322,6 @@ public class GeneratedGUI extends JFrame {
 		numButtons[index].setEnabled(false);
 
 		return isAnsCorrect;
-	}
-
-	private boolean validateAns(int index, String strAns) {
-		return strAns.equals("word" + String.valueOf(index));
 	}
 
 	private String formScoreString() {
@@ -341,7 +339,17 @@ public class GeneratedGUI extends JFrame {
 		// reset index
 		index = 0;
 
-		createAndAddNumButtons();
+		initializeRandomNouns();
+
+		ActionListener al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				index = Integer
+						.parseInt(((JButton) arg0.getSource()).getText()) - 1;
+				removeOldAnsAndRepaint(nouns[index].getSingular());
+			}
+		};
+
+		createAndAddNumButtons(al);
 
 		JLabel prompt = new JLabel(NOUN_PROMPT[LANG] + " : ");
 		prompt.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -349,15 +357,23 @@ public class GeneratedGUI extends JFrame {
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
 
-		word = new JLabel(words[index]);
+		word = new JLabel(nouns[index].getSingular());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		word.setBounds(2 * X_GAP + prompt.getWidth(), prompt.getLocation().y,
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(word);
 
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				disableGenderButtons();
+				validateGenderAndDisableNumButton((JButton) arg0.getSource());
+
+			}
+		};
+
 		createAndAddGenderButtons(getWidth() / 2
 				- ((int) (1.5 * X_GENDER_BUTTON_SIZE) + X_GAP),
-				prompt.getLocation().y + prompt.getHeight() + Y_GAP);
+				prompt.getLocation().y + prompt.getHeight() + Y_GAP, al);
 
 		JButton back = new JButton("Back");
 		back.setBounds(getWidth() - SIMPLE_BUTTON_WIDTH - X_GAP, 7 * Y_GAP
@@ -390,15 +406,33 @@ public class GeneratedGUI extends JFrame {
 		prompt.setBounds(X_GAP, Y_GAP, 2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
 
-		word = new JLabel(words[index]);
+		noun = Helper.getRandomNoun();
+		word = new JLabel(noun.getSingular());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		word.setBounds(2 * X_GAP + prompt.getWidth(), prompt.getLocation().y,
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(word);
 
+		ActionListener al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				int genderPicked = Integer
+						.parseInt(((JButton) arg0.getSource()).getName());
+				disableGenderButtons();
+				if (noun.checkGender(genderPicked)) {
+					((JButton) arg0.getSource()).setDisabledIcon(checkIcon);
+				} else {
+					((JButton) arg0.getSource()).setDisabledIcon(xIcon);
+					genderButtons[noun.getGenderAsInt()]
+							.setDisabledIcon(checkIcon);
+				}
+
+			}
+		};
+
 		createAndAddGenderButtons(getWidth() / 2
 				- ((int) (1.5 * X_GENDER_BUTTON_SIZE) + X_GAP),
-				prompt.getLocation().y + prompt.getHeight() + Y_GAP);
+				prompt.getLocation().y + prompt.getHeight() + Y_GAP, al);
 
 		JButton next = new JButton(new ImageIcon(
 				GeneratedGUI.class.getResource("next.png")));
@@ -408,8 +442,8 @@ public class GeneratedGUI extends JFrame {
 				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
 		next.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				rand = new Random().nextInt(words.length);
-				removeOldAnsAndRepaint(rand);
+				noun = Helper.getRandomNoun();
+				removeOldAnsAndRepaint(noun.getSingular());
 				enableGenderButtons();
 			}
 		});
@@ -428,8 +462,8 @@ public class GeneratedGUI extends JFrame {
 		addHomeButton(back.getLocation().x - X_GAP - SIMPLE_BUTTON_HEIGHT,
 				back.getLocation().y, SIMPLE_BUTTON_HEIGHT,
 				SIMPLE_BUTTON_HEIGHT);
-		
-		getRootPane().setDefaultButton(check);	
+
+		getRootPane().setDefaultButton(next);
 	}
 
 	private void playTranslationTest() {
@@ -442,7 +476,17 @@ public class GeneratedGUI extends JFrame {
 		// reset index
 		index = 0;
 
-		createAndAddNumButtons();
+		initializeRandomVerbs();
+
+		ActionListener al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				index = Integer
+						.parseInt(((JButton) arg0.getSource()).getText()) - 1;
+				removeOldAnsAndRepaint(verbs[index].getVerb());
+			}
+		};
+
+		createAndAddNumButtons(al);
 
 		JLabel prompt = new JLabel(VERB_PROMPT[LANG]);
 		prompt.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -450,7 +494,7 @@ public class GeneratedGUI extends JFrame {
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
 
-		word = new JLabel(words[index]);
+		word = new JLabel(verbs[index].getVerb());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		word.setBounds(X_GAP, Y_NUM_BUTTON_SIZE + 6 * Y_GAP, TEXT_SPACE[LANG],
 				3 * Y_GAP);
@@ -489,7 +533,7 @@ public class GeneratedGUI extends JFrame {
 
 					ans.setText("");
 					revealAns(word.getLocation().x, word.getLocation().y + 4
-							* Y_GAP, strAns, words[index],
+							* Y_GAP, strAns, verbs[index].getCorrectAns(LANG),
 							validateAnsAndDisableButton(index, strAns));
 					check.setEnabled(false);
 				}
@@ -497,6 +541,20 @@ public class GeneratedGUI extends JFrame {
 			}
 		});
 		getRootPane().setDefaultButton(check);
+	}
+
+	private void initializeRandomVerbs() {
+
+		for (int i = 0; i < 10; i++) {
+			verbs[i] = Helper.getRandomVerb();
+		}
+	}
+
+	private void initializeRandomNouns() {
+
+		for (int i = 0; i < 10; i++) {
+			nouns[i] = Helper.getRandomNoun();
+		}
 	}
 
 	private void addHomeButton(int x, int y, int width, int height) {
@@ -511,39 +569,26 @@ public class GeneratedGUI extends JFrame {
 		contentPane.add(home);
 	}
 
-	private void createAndAddNumButtons() {
+	private void createAndAddNumButtons(ActionListener al) {
 
 		for (int i = 0; i < 10; i++) {
 			numButtons[i] = new JButton(String.valueOf(i + 1));
 			numButtons[i].setFont(new Font("Tahoma", Font.PLAIN, 10));
 			numButtons[i].setBounds((i + 1) * X_GAP + i * (X_NUM_BUTTON_SIZE),
 					Y_GAP, X_NUM_BUTTON_SIZE, Y_NUM_BUTTON_SIZE);
-			numButtons[i].addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					index = Integer.parseInt(((JButton) arg0.getSource())
-							.getText()) - 1;
-					removeOldAnsAndRepaint(index);
-				}
-			});
+			numButtons[i].addActionListener(al);
 			contentPane.add(numButtons[i]);
 		}
 	}
 
-	private void createAndAddGenderButtons(int x, int y) {
+	private void createAndAddGenderButtons(int x, int y, ActionListener al) {
 
 		for (int i = 0; i < 3; i++) {
 			genderButtons[i] = new JButton(genderIcons[i]);
 			genderButtons[i].setName(String.valueOf(i));
 			genderButtons[i].setBounds(x + i * (X_GENDER_BUTTON_SIZE + X_GAP),
 					y, X_GENDER_BUTTON_SIZE, Y_GENDER_BUTTON_SIZE);
-			genderButtons[i].addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					disableGenderButtons();
-					validateGenderAndDisableNumButton(Integer.parseInt(((JButton) arg0.getSource())
-							.getName()));
-
-				}
-			});
+			genderButtons[i].addActionListener(al);
 			contentPane.add(genderButtons[i]);
 		}
 	}
@@ -557,22 +602,23 @@ public class GeneratedGUI extends JFrame {
 	private void enableGenderButtons() {
 		for (int i = 0; i < 3; i++) {
 			genderButtons[i].setEnabled(true);
+			genderButtons[i].setDisabledIcon(defaultDisabledGenderIcons[i]);
 		}
 	}
 
-	private void validateGenderAndDisableNumButton(int parseInt) {
+	private void validateGenderAndDisableNumButton(JButton button) {
 
-		boolean isAnsCorrect = validateGenderAns();
+		int genderPicked = Integer.parseInt(button.getName());
+		boolean isAnsCorrect = nouns[index].checkGender(genderPicked);
 		if (isAnsCorrect) {
 			numButtons[index].setBackground(Color.green);
+			button.setDisabledIcon(checkIcon);
 		} else {
 			numButtons[index].setBackground(Color.red);
+			button.setDisabledIcon(xIcon);
+			genderButtons[nouns[index].getGenderAsInt()].setDisabledIcon(checkIcon);
 		}
 		numButtons[index].setEnabled(false);
-	}
-
-	private boolean validateGenderAns() {
-		return words[index].equals("");
 	}
 
 	private void revealAns(int x, int y, String givenAns, String correctAns,
@@ -609,7 +655,7 @@ public class GeneratedGUI extends JFrame {
 		contentPane.repaint();
 	}
 
-	private void removeOldAnsAndRepaint(int index) {
+	private void removeOldAnsAndRepaint(String newWord) {
 
 		if (ans != null) {
 			ans.grabFocus();
@@ -628,7 +674,7 @@ public class GeneratedGUI extends JFrame {
 			check.setEnabled(true);
 		}
 		if (word != null) {
-			word.setText(words[index]);
+			word.setText(newWord);
 		}
 		if (genderButtons[0] != null) {
 			enableGenderButtons();
