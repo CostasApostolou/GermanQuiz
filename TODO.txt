@@ -1,12 +1,23 @@
 Open tasks
 ==========
-Rework hashmaps for verb game into a seperate class (maybe Verben) (CHECK IF THIS IS VIABLE)
-Create GUI for playing verb game
-Create GUI for playing noun game
+
 Create game with noun plurals
 Serialize nouns and save the result
 Serialize verbs and save the result
 Load serialized nouns and verbs
+Check if the starting position can be obtained relevantly to screen's resolution
+Add restart button on Test Modes
+Add counter in Gender Free mode, same as in Translation Free mode
+Reshape Gender Free mode
+Refactor code so as to use common Action Listeners where possible
+
+29/03
+	1. Rework hashmaps for verb game into a seperate class
+	2. Create GUI for playing verb game
+	3. Create GUI for playing noun game
+	
+14/03 - 28/03
+	Stuff that aren't shown here, but I was working, believe me. If you don't, you can check my commit history.
 
 13/03
 	1. Create GUI for selecting language
