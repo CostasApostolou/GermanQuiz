@@ -16,7 +16,6 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.EventQueue;
 
-
 public class Main extends JFrame {
 
 	private static final long serialVersionUID = -6523370605519160263L;
@@ -41,6 +40,8 @@ public class Main extends JFrame {
 	private ImageIcon checkIcon = new ImageIcon(
 			Main.class.getResource("checkmark.png"));
 	private ImageIcon xIcon = new ImageIcon(Main.class.getResource("xmark.png"));
+	private ImageIcon restartIcon = new ImageIcon(
+			Main.class.getResource("restart.png"));
 	private Icon[] defaultDisabledGenderIcons = new Icon[3];
 
 	private String[][] games = {
@@ -53,12 +54,33 @@ public class Main extends JFrame {
 			{ "Verben Übersetzung (endlos)", "Nomen Geschlecht (endlos)",
 					"Verben Übersetzung (Test)", "Nomen Geschlecht (Test)" } };
 
-	private static final int WINDOW_STARTING_X = 400, WINDOW_STARTING_Y = 200,
-			X_LANG_BUTTON_SIZE = 125, Y_LANG_BUTTON_SIZE = 100,
-			X_GENDER_BUTTON_SIZE = 100, Y_GENDER_BUTTON_SIZE = 100,
-			X_NUM_BUTTON_SIZE = 45, Y_NUM_BUTTON_SIZE = 40, X_GAP = 10,
-			Y_GAP = 10, X_BEZEL = 6, Y_BEZEL = 40, SIMPLE_BUTTON_WIDTH = 70,
-			SIMPLE_BUTTON_HEIGHT = 30;
+	private static int WINDOW_STARTING_X = 400;
+
+	private static int WINDOW_STARTING_Y = 200;
+
+	private static final int X_LANG_BUTTON_SIZE = 125;
+
+	private static final int Y_LANG_BUTTON_SIZE = 100;
+
+	private static final int X_GENDER_BUTTON_SIZE = 100;
+
+	private static final int Y_GENDER_BUTTON_SIZE = 100;
+
+	private static final int X_NUM_BUTTON_SIZE = 45;
+
+	private static final int Y_NUM_BUTTON_SIZE = 40;
+
+	private static final int X_GAP = 10;
+
+	private static final int Y_GAP = 10;
+
+	private static final int X_BEZEL = 6;
+
+	private static final int Y_BEZEL = 40;
+
+	private static final int SIMPLE_BUTTON_WIDTH = 70;
+
+	private static final int SIMPLE_BUTTON_HEIGHT = 30;
 
 	private static final int[] TEXT_SPACE = { 100, 130, 110 };
 
@@ -79,6 +101,8 @@ public class Main extends JFrame {
 	private Noun noun;
 	private Noun[] nouns = new Noun[10];
 
+	private JButton revealAns;
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -95,7 +119,14 @@ public class Main extends JFrame {
 	public Main() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// WINDOW_STARTING_X =
+		// (Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2;
+		// WINDOW_STARTING_Y =
+		// (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight())/
+		// 2;
 		setLocation(WINDOW_STARTING_X, WINDOW_STARTING_Y);
+		// setLocationRelativeTo(null);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -243,7 +274,7 @@ public class Main extends JFrame {
 		ans.setBounds(2 * X_GAP + word.getWidth(), 5 * Y_GAP,
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(ans);
-
+		
 		final JButton next = new JButton(new ImageIcon(
 				Main.class.getResource("next.png")));
 		next.setBounds(getWidth() - SIMPLE_BUTTON_HEIGHT - X_GAP, 21 * Y_GAP,
@@ -253,10 +284,26 @@ public class Main extends JFrame {
 				verb = Helper.getRandomVerb();
 				removeOldAnsAndRepaint(verb.getVerb());
 				check.setEnabled(true);
+				revealAns.setEnabled(true);
 				getRootPane().setDefaultButton(check);
 			}
 		});
 		contentPane.add(next);
+		
+		ActionListener al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ans.setText("");
+				revealAns(word.getLocation().x, word.getLocation().y + 4
+						* Y_GAP, "", verb.getCorrectAns(LANG),
+						verb.checkTranslation(""));
+				check.setEnabled(false);
+				((JButton)arg0.getSource()).setEnabled(false);
+				getRootPane().setDefaultButton(next);
+			}
+		};
+
+		addRevealButton(X_GAP + ans.getWidth() + ans.getLocation().x,
+				ans.getLocation().y, al);
 
 		check = new JButton("Check");
 		check.setBounds(next.getLocation().x - X_GAP - SIMPLE_BUTTON_WIDTH,
@@ -341,6 +388,16 @@ public class Main extends JFrame {
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
 
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				removeOldAnsAndRepaint(null);
+				playGenderTest();
+			}
+		};
+
+		addResetButton(getWidth() - X_GAP - SIMPLE_BUTTON_HEIGHT - X_BEZEL,
+				prompt.getLocation().y, al);
+
 		word = new JLabel(nouns[index].getSingular());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		word.setBounds(2 * X_GAP + prompt.getWidth(), prompt.getLocation().y,
@@ -378,17 +435,26 @@ public class Main extends JFrame {
 	private void playGenderFree() {
 
 		setBounds(getLocation().x, getLocation().y, 10 * X_NUM_BUTTON_SIZE + 11
-				* X_GAP + X_BEZEL, 300);
+				* X_GAP + X_BEZEL, 7 * Y_GAP + Y_GENDER_BUTTON_SIZE
+				+ SIMPLE_BUTTON_HEIGHT + Y_BEZEL);
 
 		contentPane.removeAll();
 
-		// reset index
+		// reset
 		index = 0;
+		correctAnsCounter = 0;
+		overallCounter = 0;
 
 		JLabel prompt = new JLabel(NOUN_PROMPT[LANG] + " : ");
 		prompt.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		prompt.setBounds(X_GAP, Y_GAP, 2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
+
+		score = new JLabel(formScoreString());
+		score.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		score.setBounds(getWidth() - TEXT_SPACE[LANG] - X_GAP, Y_GAP,
+				TEXT_SPACE[LANG], 3 * Y_GAP);
+		contentPane.add(score);
 
 		noun = Helper.getRandomNoun();
 		word = new JLabel(noun.getSingular());
@@ -405,11 +471,19 @@ public class Main extends JFrame {
 				disableGenderButtons();
 				if (noun.checkGender(genderPicked)) {
 					((JButton) arg0.getSource()).setDisabledIcon(checkIcon);
+					correctAnsCounter++;
 				} else {
 					((JButton) arg0.getSource()).setDisabledIcon(xIcon);
 					genderButtons[noun.getGenderAsInt()]
 							.setDisabledIcon(checkIcon);
 				}
+				overallCounter++;
+
+				if (score != null) {
+					score.setText(formScoreString());
+				}
+
+				contentPane.repaint();
 
 			}
 		};
@@ -478,16 +552,39 @@ public class Main extends JFrame {
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(prompt);
 
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				removeOldAnsAndRepaint(null);
+				playTranslationTest();
+			}
+		};
+
+		addResetButton(getWidth() - X_GAP - SIMPLE_BUTTON_HEIGHT - X_BEZEL,
+				prompt.getLocation().y, al);
+
 		word = new JLabel(verbs[index].getVerb());
 		word.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		word.setBounds(X_GAP, Y_NUM_BUTTON_SIZE + 6 * Y_GAP, TEXT_SPACE[LANG],
-				3 * Y_GAP);
+		word.setBounds(X_GAP, Y_NUM_BUTTON_SIZE + 6 * Y_GAP,
+				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(word);
 
 		ans = new JTextField();
 		ans.setBounds(2 * X_GAP + word.getWidth(), Y_NUM_BUTTON_SIZE + 6
 				* Y_GAP, 2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(ans);
+
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ans.setText("");
+				revealAns(word.getLocation().x, word.getLocation().y + 4
+						* Y_GAP, "", verbs[index].getCorrectAns(LANG),
+						validateAnsAndDisableButton(index, ""));
+				check.setEnabled(false);
+			}
+		};
+
+		addRevealButton(X_GAP + ans.getWidth() + ans.getLocation().x,
+				ans.getLocation().y, al);
 
 		addHomeButton(8 * X_GAP + 6 * X_NUM_BUTTON_SIZE, 210,
 				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
@@ -525,6 +622,22 @@ public class Main extends JFrame {
 			}
 		});
 		getRootPane().setDefaultButton(check);
+	}
+
+	private void addRevealButton(int x, int y, ActionListener al) {
+		revealAns = new JButton("Reveal");
+		revealAns.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		revealAns.setBounds(x, y, SIMPLE_BUTTON_WIDTH, SIMPLE_BUTTON_HEIGHT);
+		revealAns.addActionListener(al);
+		contentPane.add(revealAns);
+	}
+
+	private void addResetButton(int x, int y, ActionListener al) {
+		JButton restart = new JButton(restartIcon);
+		restart.setBounds(x, y, SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
+		restart.setToolTipText("Resets this game");
+		restart.addActionListener(al);
+		contentPane.add(restart);
 	}
 
 	private void initializeRandomVerbs() {
@@ -600,7 +713,8 @@ public class Main extends JFrame {
 		} else {
 			numButtons[index].setBackground(Color.red);
 			button.setDisabledIcon(xIcon);
-			genderButtons[nouns[index].getGenderAsInt()].setDisabledIcon(checkIcon);
+			genderButtons[nouns[index].getGenderAsInt()]
+					.setDisabledIcon(checkIcon);
 		}
 		numButtons[index].setEnabled(false);
 	}

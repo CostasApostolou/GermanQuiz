@@ -1,4 +1,4 @@
-antworten;απαντάω;απαντώ;απανταω;απαντω;;;;;answer;;;
+﻿antworten;απαντάω;απαντώ;απανταω;απαντω;;;;;answer;;;
 arbeiten;εργάζομαι;εργαζομαι;;;;;;;work;;;
 bekommen;receive;παίρνω;λαμβάνω;παιρνω;λαμβανω;;;;receive;;;
 bieten;προσφέρω;προσφερω;;;;;;;offer;;;
@@ -83,7 +83,7 @@ schwimmen;κολυμπάω;κολυμπώ;κολυμπαω;κολυμπω;;;;;sw
 sehen;βλέπω;βλεπω;;;;;;;see;;;
 spazieren gehen;κάνω περίπατο;πάω βόλτα;κανω περιπατο;παω βολτα;;;;;go for a walk;go for a stroll;walk;stroll
 stattfinden;γίνεται;λαμβάνει χώρα;γινεται;λαμβανει χωρα;;;;;take place;;;
-stören;ενοχλώ;ενοχλω;;;;;;;disturbe;;;
+stören;ενοχλώ;ενοχλω;;;;;;;disturb;;;
 tanzen;χορεύω;χορευω;;;;;;;dance;;;
 treffen;συναντώ;συναντω;;;;;;;meet;;;
 vergessen;ξεχνάω;ξεχνώ;ξεχναω;ξεχνω;;;;;forget;;;

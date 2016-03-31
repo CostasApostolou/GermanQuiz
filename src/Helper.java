@@ -22,7 +22,7 @@ public class Helper {
 		try {
 			verbStream = Helper.class.getResourceAsStream("Verb.txt");
 			nounStream = Helper.class.getResourceAsStream("Nomen.txt");
-			sc = new Scanner(verbStream);
+			sc = new Scanner(verbStream, "UTF-8");
 			createVerbMap(sc);
 			sc.close();
 			sc = new Scanner(nounStream);
