@@ -6,18 +6,22 @@ Serialize nouns and save the result
 Serialize verbs and save the result
 Load serialized nouns and verbs
 Check if the starting position can be obtained relevantly to screen's resolution
-
-
-Add reveal ans button on Gender games
+Make a game with the time
+Refactor code so as to use common Action Listeners where possible
+Add tooltip text on every button
 Add next button on Test Modes
 Add prev button on Test Modes
-Add tooltip text on every button
 Make buttons multilingual
-Refactor code so as to use common Action Listeners where possible
 
-Bugs:
-	Gender free mode : when no answer given, no next avail (rethink this)
-	Translation test mode : sync reveal and check. correctly clear after reveal
+
+
+
+
+01/04
+	1. (BUG) Translation test mode : sync reveal and check. correctly clear after reveal
+	2. Add reveal ans button on Gender games
+	3. When revealing a noun's gender, write it in the word field (Tag => der Tag)
+	4. Make sure that at test modes 10 unique words are received
 
 31/03
 	1. Reshape Gender Free mode

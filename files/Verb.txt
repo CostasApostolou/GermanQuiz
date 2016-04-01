@@ -1,5 +1,5 @@
 ﻿antworten;απαντάω;απαντώ;απανταω;απαντω;;;;;answer;;;
-arbeiten;εργάζομαι;εργαζομαι;;;;;;;work;;;
+arbeiten;εργάζομαι;εργαζομαι;δουλέυω;δουλευω;;;;;work;;;
 bekommen;receive;παίρνω;λαμβάνω;παιρνω;λαμβανω;;;;receive;;;
 bieten;προσφέρω;προσφερω;;;;;;;offer;;;
 buchstabieren;συλλαβίζω;συλλαβιζω;;;;;;;spell;;;
@@ -75,7 +75,7 @@ mitbringen;φέρνω μαζί μου;φερνω μαζι μου;;;;;;;bring wit
 mitkommen;έρχομαι μαζί;ερχομαι μαζι;;;;;;;come with;come together;;
 müssen;πρέπει;πρεπει;;;;;;;must;have to;;
 ordnen;ταξινομώ;τακτοποιώ;ταξινομω;τακτοποιω;;;;;order;organize;arrange;
-Rad fahren;κάνω ποδήλατο;κανω ποδηλατο;;;;;;;ride a bike;ride bike;;
+Rad fahren;κάνω ποδήλατο;κανω ποδηλατο;;;;;;;ride a bike;ride bike;ride a bicycle;
 rauchen;καπνίζω;καπνιζω;;;;;;;smoke;;;
 schlafen;κοιμάμαι;κοιμαμαι;;;;;;;sleep;;;
 schneiden;κόβω;κοβω;;;;;;;cut;;;

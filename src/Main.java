@@ -274,7 +274,7 @@ public class Main extends JFrame {
 		ans.setBounds(2 * X_GAP + word.getWidth(), 5 * Y_GAP,
 				2 * TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(ans);
-		
+
 		final JButton next = new JButton(new ImageIcon(
 				Main.class.getResource("next.png")));
 		next.setBounds(getWidth() - SIMPLE_BUTTON_HEIGHT - X_GAP, 21 * Y_GAP,
@@ -289,7 +289,7 @@ public class Main extends JFrame {
 			}
 		});
 		contentPane.add(next);
-		
+
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ans.setText("");
@@ -297,7 +297,7 @@ public class Main extends JFrame {
 						* Y_GAP, "", verb.getCorrectAns(LANG),
 						verb.checkTranslation(""));
 				check.setEnabled(false);
-				((JButton)arg0.getSource()).setEnabled(false);
+				((JButton) arg0.getSource()).setEnabled(false);
 				getRootPane().setDefaultButton(next);
 			}
 		};
@@ -338,7 +338,7 @@ public class Main extends JFrame {
 		contentPane.add(back);
 
 		addHomeButton(back.getLocation().x - X_GAP - SIMPLE_BUTTON_HEIGHT,
-				21 * Y_GAP, SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
+				21 * Y_GAP);
 
 		getRootPane().setDefaultButton(check);
 	}
@@ -370,7 +370,7 @@ public class Main extends JFrame {
 		// reset index
 		index = 0;
 
-		initializeRandomNouns();
+		nouns = Helper.getRandomNounArray(10);
 
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -408,7 +408,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				disableGenderButtons();
 				validateGenderAndDisableNumButton((JButton) arg0.getSource());
-
+				revealAns.setEnabled(false);
 			}
 		};
 
@@ -428,8 +428,21 @@ public class Main extends JFrame {
 		contentPane.add(back);
 
 		addHomeButton(back.getLocation().x - X_GAP - SIMPLE_BUTTON_HEIGHT,
-				back.getLocation().y, SIMPLE_BUTTON_HEIGHT,
-				SIMPLE_BUTTON_HEIGHT);
+				back.getLocation().y);
+
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				disableGenderButtons();
+				numButtons[index].setBackground(Color.red);
+				genderButtons[nouns[index].getGenderAsInt()]
+						.setDisabledIcon(checkIcon);
+				numButtons[index].setEnabled(false);
+				((JButton) arg0.getSource()).setEnabled(false);
+				word.setText(nouns[index].getNounWithArticle());
+			}
+		};
+
+		addRevealButton(X_GAP, back.getLocation().y, al);
 	}
 
 	private void playGenderFree() {
@@ -452,8 +465,8 @@ public class Main extends JFrame {
 
 		score = new JLabel(formScoreString());
 		score.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		score.setBounds(getWidth() - TEXT_SPACE[LANG] - X_GAP, Y_GAP,
-				TEXT_SPACE[LANG], 3 * Y_GAP);
+		score.setBounds(getWidth()- SIMPLE_BUTTON_WIDTH - X_GAP - X_BEZEL,
+				Y_GAP, TEXT_SPACE[LANG], 3 * Y_GAP);
 		contentPane.add(score);
 
 		noun = Helper.getRandomNoun();
@@ -478,13 +491,11 @@ public class Main extends JFrame {
 							.setDisabledIcon(checkIcon);
 				}
 				overallCounter++;
-
 				if (score != null) {
 					score.setText(formScoreString());
 				}
-
-				contentPane.repaint();
-
+				word.setText(noun.getNounWithArticle());
+				revealAns.setEnabled(false);
 			}
 		};
 
@@ -494,7 +505,7 @@ public class Main extends JFrame {
 
 		JButton next = new JButton(new ImageIcon(
 				Main.class.getResource("next.png")));
-		next.setBounds(getWidth() - SIMPLE_BUTTON_HEIGHT - X_GAP,
+		next.setBounds(getWidth() - SIMPLE_BUTTON_HEIGHT - X_GAP - X_BEZEL,
 				prompt.getLocation().y + prompt.getHeight()
 						+ Y_GENDER_BUTTON_SIZE + 2 * Y_GAP,
 				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
@@ -518,8 +529,23 @@ public class Main extends JFrame {
 		contentPane.add(back);
 
 		addHomeButton(back.getLocation().x - X_GAP - SIMPLE_BUTTON_HEIGHT,
-				back.getLocation().y, SIMPLE_BUTTON_HEIGHT,
-				SIMPLE_BUTTON_HEIGHT);
+				back.getLocation().y);
+
+		al = new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				disableGenderButtons();
+				genderButtons[noun.getGenderAsInt()].setDisabledIcon(checkIcon);
+				overallCounter++;
+				if (score != null) {
+					score.setText(formScoreString());
+				}
+				((JButton) arg0.getSource()).setEnabled(false);
+				word.setText(noun.getNounWithArticle());
+			}
+		};
+
+		addRevealButton(X_GAP, back.getLocation().y, al);
 
 		getRootPane().setDefaultButton(next);
 	}
@@ -534,7 +560,7 @@ public class Main extends JFrame {
 		// reset index
 		index = 0;
 
-		initializeRandomVerbs();
+		verbs = Helper.getRandomVerbArray(10);
 
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -579,6 +605,7 @@ public class Main extends JFrame {
 				revealAns(word.getLocation().x, word.getLocation().y + 4
 						* Y_GAP, "", verbs[index].getCorrectAns(LANG),
 						validateAnsAndDisableButton(index, ""));
+				((JButton) arg0.getSource()).setEnabled(false);
 				check.setEnabled(false);
 			}
 		};
@@ -586,8 +613,7 @@ public class Main extends JFrame {
 		addRevealButton(X_GAP + ans.getWidth() + ans.getLocation().x,
 				ans.getLocation().y, al);
 
-		addHomeButton(8 * X_GAP + 6 * X_NUM_BUTTON_SIZE, 210,
-				SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
+		addHomeButton(8 * X_GAP + 6 * X_NUM_BUTTON_SIZE, 210);
 
 		JButton back = new JButton("Back");
 		back.setBounds(
@@ -616,6 +642,7 @@ public class Main extends JFrame {
 					revealAns(word.getLocation().x, word.getLocation().y + 4
 							* Y_GAP, strAns, verbs[index].getCorrectAns(LANG),
 							validateAnsAndDisableButton(index, strAns));
+					revealAns.setEnabled(false);
 					check.setEnabled(false);
 				}
 
@@ -640,24 +667,10 @@ public class Main extends JFrame {
 		contentPane.add(restart);
 	}
 
-	private void initializeRandomVerbs() {
-
-		for (int i = 0; i < 10; i++) {
-			verbs[i] = Helper.getRandomVerb();
-		}
-	}
-
-	private void initializeRandomNouns() {
-
-		for (int i = 0; i < 10; i++) {
-			nouns[i] = Helper.getRandomNoun();
-		}
-	}
-
-	private void addHomeButton(int x, int y, int width, int height) {
+	private void addHomeButton(int x, int y) {
 		JButton home = new JButton(new ImageIcon(
 				Main.class.getResource("home.png")));
-		home.setBounds(x, y, width, height);
+		home.setBounds(x, y, SIMPLE_BUTTON_HEIGHT, SIMPLE_BUTTON_HEIGHT);
 		home.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				createLangChoose();
@@ -716,6 +729,7 @@ public class Main extends JFrame {
 			genderButtons[nouns[index].getGenderAsInt()]
 					.setDisabledIcon(checkIcon);
 		}
+		word.setText(nouns[index].getNounWithArticle());
 		numButtons[index].setEnabled(false);
 	}
 
@@ -770,6 +784,9 @@ public class Main extends JFrame {
 		}
 		if (check != null) {
 			check.setEnabled(true);
+		}
+		if (revealAns != null) {
+			revealAns.setEnabled(true);
 		}
 		if (word != null) {
 			word.setText(newWord);

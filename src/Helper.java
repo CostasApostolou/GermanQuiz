@@ -1,5 +1,6 @@
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -101,6 +102,28 @@ public class Helper {
 		int rand = (int) (verbs.size() * Math.random());
 		Verb ret = verbs.get(rand);
 		return ret;
+	}
+	
+	public static Noun[] getRandomNounArray(int size){
+		
+		HashSet<Noun> set = new HashSet<Noun>();
+		
+		while (set.size() < size){
+			set.add(getRandomNoun());
+		}
+		
+		return set.toArray(new Noun[10]);
+	}
+	
+	public static Verb[] getRandomVerbArray(int size){
+		
+		HashSet<Verb> set = new HashSet<Verb>();
+		
+		while (set.size() < size){
+			set.add(getRandomVerb());
+		}
+		
+		return set.toArray(new Verb[10]);
 	}
 
 }

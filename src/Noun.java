@@ -32,6 +32,19 @@ public class Noun {
 	public char getGender() {
 		return gender;
 	}
+	
+	public String getNounWithArticle(){
+		switch (gender) {
+		case 'r':
+			return "der "+singular;
+		case 'e':
+			return "die "+singular;
+		case 's':
+			return "das "+singular;
+		default:
+			return null;
+		}
+	}
 
 	public int getGenderAsInt() {
 		switch (gender) {
