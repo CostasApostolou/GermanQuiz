@@ -7,19 +7,23 @@ Serialize verbs and save the result
 Load serialized nouns and verbs
 Check if the starting position can be obtained relevantly to screen's resolution
 Make a game with the time
-Refactor code so as to use common Action Listeners where possible
 Add tooltip text on every button
-Add next button on Test Modes
-Add prev button on Test Modes
 Make buttons multilingual
 Add insertion form for new verbs
 Add insertion form for new nouns
+Add button listener to next in test modes (right arrow)
 
 
 
 
 03/04
 	1. Make test buttons JToggleButtons and add them in a Button Group
+	2. Rework Translation free's outlook
+	3. Add next button on Test Modes
+	4. Add prev button on Test Modes
+	5. Create addCheckButton(x, y, al)
+	6. Create addBackButton(x,y, al)
+	7. (BUG) Greek -> Μεταφραση (free) -> word is out of screen!
 
 01/04
 	1. (BUG) Translation test mode : sync reveal and check. correctly clear after reveal

@@ -26,7 +26,7 @@ public class Helper {
 			sc = new Scanner(verbStream, "UTF-8");
 			createVerbMap(sc);
 			sc.close();
-			sc = new Scanner(nounStream);
+			sc = new Scanner(nounStream, "UTF-8");
 			createNounMap(sc);
 			sc.close();
 
