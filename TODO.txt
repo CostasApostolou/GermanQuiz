@@ -12,10 +12,14 @@ Add tooltip text on every button
 Add next button on Test Modes
 Add prev button on Test Modes
 Make buttons multilingual
+Add insertion form for new verbs
+Add insertion form for new nouns
 
 
 
 
+03/04
+	1. Make test buttons JToggleButtons and add them in a Button Group
 
 01/04
 	1. (BUG) Translation test mode : sync reveal and check. correctly clear after reveal

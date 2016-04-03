@@ -4,6 +4,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
@@ -21,8 +22,8 @@ public class Main extends JFrame {
 	private static final long serialVersionUID = -6523370605519160263L;
 
 	private JPanel contentPane;
-	private JButton[] numButtons = new JButton[10],
-			genderButtons = new JButton[3];
+	private JToggleButton[] numButtons = new JToggleButton[10];
+	private JButton[] genderButtons = new JButton[3];
 	private JButton check;
 	private JLabel word, yourAns = new JLabel(), score, ansValidity,
 			correctAnsReveal;
@@ -375,7 +376,7 @@ public class Main extends JFrame {
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				index = Integer
-						.parseInt(((JButton) arg0.getSource()).getText()) - 1;
+						.parseInt(((JToggleButton) arg0.getSource()).getText()) - 1;
 				removeOldAnsAndRepaint(nouns[index].getSingular());
 			}
 		};
@@ -565,7 +566,7 @@ public class Main extends JFrame {
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				index = Integer
-						.parseInt(((JButton) arg0.getSource()).getText()) - 1;
+						.parseInt(((JToggleButton) arg0.getSource()).getText()) - 1;
 				removeOldAnsAndRepaint(verbs[index].getVerb());
 			}
 		};
@@ -680,15 +681,20 @@ public class Main extends JFrame {
 	}
 
 	private void createAndAddNumButtons(ActionListener al) {
+		
+		ButtonGroup bg = new ButtonGroup();
 
 		for (int i = 0; i < 10; i++) {
-			numButtons[i] = new JButton(String.valueOf(i + 1));
+			numButtons[i] = new JToggleButton(String.valueOf(i + 1));
 			numButtons[i].setFont(new Font("Tahoma", Font.PLAIN, 10));
 			numButtons[i].setBounds((i + 1) * X_GAP + i * (X_NUM_BUTTON_SIZE),
 					Y_GAP, X_NUM_BUTTON_SIZE, Y_NUM_BUTTON_SIZE);
 			numButtons[i].addActionListener(al);
 			contentPane.add(numButtons[i]);
+			bg.add(numButtons[i]);
 		}
+		
+		numButtons[0].setSelected(true);
 	}
 
 	private void createAndAddGenderButtons(int x, int y, ActionListener al) {
